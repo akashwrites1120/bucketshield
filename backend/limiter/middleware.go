@@ -5,9 +5,16 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/akashwrites1120/bucketshield/backend/events"
+	"github.com/redis/go-redis/v9"
 )
 
-func NewMiddleware(l *Limiter) func(http.Handler) http.Handler {
+// NewMiddleware returns a Chi-compatible rate-limiting middleware.
+// After each decision it publishes an Event to Redis Pub/Sub so all backend
+// instances can broadcast it to their connected WebSocket clients.
+func NewMiddleware(l *Limiter, rdb *redis.Client) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			clientId := r.Header.Get("X-Client-ID")
@@ -20,7 +27,10 @@ func NewMiddleware(l *Limiter) func(http.Handler) http.Handler {
 				return
 			}
 
+			start := time.Now()
 			res, err := l.Check(r.Context(), clientId, 1.0)
+			latencyMs := float64(time.Since(start).Microseconds()) / 1000.0
+
 			if err != nil {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -29,6 +39,17 @@ func NewMiddleware(l *Limiter) func(http.Handler) http.Handler {
 				})
 				return
 			}
+
+			// Publish to Redis Pub/Sub (non-blocking; errors are logged inside Publish)
+			events.Publish(r.Context(), rdb, events.Event{
+				ClientID:        clientId,
+				Allowed:         res.Allowed,
+				TokensRemaining: res.TokensRemaining,
+				MaxTokens:       res.MaxTokens,
+				RefillRate:      res.RefillRate,
+				Timestamp:       time.Now().UnixMilli(),
+				LatencyMs:       latencyMs,
+			})
 
 			w.Header().Set("X-RateLimit-Limit", strconv.FormatFloat(res.MaxTokens, 'f', 2, 64))
 			w.Header().Set("X-RateLimit-Remaining", strconv.FormatFloat(res.TokensRemaining, 'f', 2, 64))
