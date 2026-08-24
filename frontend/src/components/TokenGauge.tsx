@@ -1,108 +1,84 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 interface TokenGaugeProps {
   current: number;
   max: number;
+  accent?: string;
 }
 
-function getColor(pct: number): { fill: string; glow: string; track: string } {
-  if (pct > 0.5) return { fill: '#22c55e', glow: 'rgba(34,197,94,0.35)', track: 'rgba(34,197,94,0.1)' };
-  if (pct > 0.2) return { fill: '#f59e0b', glow: 'rgba(245,158,11,0.35)', track: 'rgba(245,158,11,0.1)' };
-  return { fill: '#ef4444', glow: 'rgba(239,68,68,0.35)', track: 'rgba(239,68,68,0.1)' };
+function getStatus(pct: number): { color: string; label: string } {
+  if (pct > 0.5) return { color: '#34d399', label: 'Healthy' };
+  if (pct > 0.2) return { color: '#fbbf24', label: 'Low' };
+  return { color: '#f87171', label: pct > 0 ? 'Critical' : 'Exhausted' };
 }
 
-/**
- * Animated vertical token-bucket gauge.
- * Uses a CSS transition on the fill height for smooth drain/refill visuals.
- */
 export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
   const pct = max > 0 ? Math.max(0, Math.min(1, current / max)) : 0;
-  const { fill, glow, track } = getColor(pct);
-  const prevPct = useRef(pct);
-
-  useEffect(() => {
-    prevPct.current = pct;
-  }, [pct]);
-
-  const fillHeight = `${pct * 100}%`;
+  const { color, label } = getStatus(pct);
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full">
-      {/* Label */}
-      <div className="text-xs font-semibold tracking-widest uppercase text-slate-400">
-        Token Level
+    <div className="flex flex-col items-center gap-3 w-full" style={{ width: 84 }}>
+      <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+        Tokens
       </div>
 
-      {/* Gauge container */}
-      <div className="relative flex items-end justify-center" style={{ width: 72, height: 180 }}>
-        {/* Track background */}
+      <div className="relative flex items-end justify-center" style={{ width: 56, height: 168 }}>
         <div
-          className="absolute inset-0 rounded-2xl overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 14,
+          }}
         >
-          {/* Animated fill */}
           <div
-            className="absolute bottom-0 left-0 right-0 rounded-2xl"
+            className="absolute bottom-0 left-0 right-0"
             style={{
-              height: fillHeight,
-              background: `linear-gradient(to top, ${fill}, ${fill}cc)`,
-              boxShadow: `0 0 20px ${glow}`,
-              transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.6s ease, box-shadow 0.6s ease',
-            }}
-          />
-          {/* Shimmer overlay */}
-          <div
-            className="absolute bottom-0 left-0 right-0 rounded-2xl"
-            style={{
-              height: fillHeight,
-              background: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-              transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              height: `${pct * 100}%`,
+              background: color,
+              opacity: 0.85,
+              transition:
+                'height 0.5s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.5s ease',
             }}
           />
         </div>
 
-        {/* Tick marks at 25/50/75% */}
         {[0.25, 0.5, 0.75].map((t) => (
           <div
             key={t}
-            className="absolute left-0 right-0"
+            className="absolute pointer-events-none"
             style={{
               bottom: `${t * 100}%`,
+              left: 8,
+              right: 8,
               height: 1,
-              background: 'rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.08)',
             }}
           />
         ))}
       </div>
 
-      {/* Numeric readout */}
       <div className="flex flex-col items-center gap-0.5">
         <span
-          className="text-2xl font-bold tabular-nums"
-          style={{
-            color: fill,
-            textShadow: `0 0 12px ${glow}`,
-            transition: 'color 0.6s ease, text-shadow 0.6s ease',
-          }}
+          key={Math.floor(current)}
+          className="text-2xl font-semibold tabular-nums tracking-tight animate-pop-in"
+          style={{ color }}
         >
           {current.toFixed(1)}
         </span>
-        <span className="text-xs text-slate-500">
-          / {max.toFixed(0)} tokens
-        </span>
+        <span className="text-[11px] text-zinc-600">/ {max.toFixed(0)} tokens</span>
       </div>
 
-      {/* Status badge */}
       <div
-        className="text-xs font-semibold px-2 py-0.5 rounded-full"
+        className="text-[10px] font-medium px-2 py-0.5 rounded-full uppercase tracking-[0.12em]"
         style={{
-          background: track,
-          color: fill,
-          border: `1px solid ${fill}40`,
-          transition: 'background 0.6s ease, color 0.6s ease',
+          background: `${color}14`,
+          color,
+          border: `1px solid ${color}2e`,
+          transition: 'background 0.4s ease, color 0.4s ease',
         }}
       >
-        {pct > 0.5 ? 'Healthy' : pct > 0.2 ? 'Low' : pct > 0 ? 'Critical' : 'Exhausted'}
+        {label}
       </div>
     </div>
   );

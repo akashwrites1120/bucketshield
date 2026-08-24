@@ -17,21 +17,17 @@ function formatTime(ts: number): string {
 }
 
 function getClientColor(clientId: string): string {
-  if (clientId.includes('client-a')) return '#818cf8';
+  if (clientId.includes('client-a')) return '#38bdf8';
   if (clientId.includes('client-b')) return '#34d399';
-  return '#fb923c';
+  return '#fbbf24';
 }
 
 const VISIBLE_LIMIT = 100;
 
-/**
- * Scrolling newest-first feed of rate-limit events from the WebSocket stream.
- */
 export const LiveRequestFeed: React.FC<LiveRequestFeedProps> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const visible = events.slice(0, VISIBLE_LIMIT);
 
-  // Auto-scroll to top on new events (newest-first layout)
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
@@ -40,8 +36,9 @@ export const LiveRequestFeed: React.FC<LiveRequestFeedProps> = ({ events }) => {
 
   if (events.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-slate-600 text-sm">
-        Waiting for events… fire some traffic above ↑
+      <div className="flex flex-col items-center justify-center h-32 gap-2 text-zinc-600 text-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse-dot" />
+        Waiting for events… fire some traffic above
       </div>
     );
   }
@@ -54,51 +51,51 @@ export const LiveRequestFeed: React.FC<LiveRequestFeedProps> = ({ events }) => {
       id="live-feed"
     >
       <table className="w-full text-xs border-collapse">
-        <thead className="sticky top-0 z-10" style={{ background: '#0f1629' }}>
-          <tr className="text-left text-slate-500 uppercase tracking-wider">
-            <th className="py-2 px-3 font-semibold">Time</th>
-            <th className="py-2 px-3 font-semibold">Client</th>
-            <th className="py-2 px-3 font-semibold">Status</th>
-            <th className="py-2 px-3 font-semibold text-right">Tokens</th>
-            <th className="py-2 px-3 font-semibold text-right">Latency</th>
+        <thead className="sticky top-0 z-10" style={{ background: '#0f0f11' }}>
+          <tr className="text-left text-zinc-600 uppercase tracking-[0.12em] text-[10px]">
+            <th className="py-2 px-3 font-medium">Time</th>
+            <th className="py-2 px-3 font-medium">Client</th>
+            <th className="py-2 px-3 font-medium">Status</th>
+            <th className="py-2 px-3 font-medium text-right">Tokens</th>
+            <th className="py-2 px-3 font-medium text-right">Latency</th>
           </tr>
         </thead>
         <tbody>
           {visible.map((evt, i) => (
             <tr
               key={`${evt.timestamp}-${i}`}
-              className={`border-b border-white/5 transition-colors ${i === 0 ? 'animate-slide-in' : ''}`}
+              className={`border-b border-white/[0.04] transition-colors duration-150 hover:bg-white/[0.03] ${i === 0 ? 'animate-slide-in-row' : ''}`}
               style={{
                 background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
               }}
             >
-              <td className="py-1.5 px-3 font-mono text-slate-500" style={{ whiteSpace: 'nowrap' }}>
+              <td className="py-1.5 px-3 font-mono tabular-nums text-zinc-500" style={{ whiteSpace: 'nowrap' }}>
                 {formatTime(evt.timestamp)}
               </td>
-              <td className="py-1.5 px-3 font-bold" style={{ color: getClientColor(evt.clientId) }}>
+              <td className="py-1.5 px-3 font-medium" style={{ color: getClientColor(evt.clientId) }}>
                 {CLIENT_LABELS[evt.clientId as ClientId] ?? evt.clientId}
               </td>
               <td className="py-1.5 px-3">
                 {evt.allowed ? (
                   <span
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold tracking-wide"
+                    style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.18)' }}
                   >
                     ✓ ALLOWED
                   </span>
                 ) : (
                   <span
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold tracking-wide"
+                    style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.18)' }}
                   >
                     ✗ REJECTED
                   </span>
                 )}
               </td>
-              <td className="py-1.5 px-3 text-right font-mono text-slate-400">
+              <td className="py-1.5 px-3 text-right font-mono tabular-nums text-zinc-400">
                 {evt.tokensRemaining.toFixed(1)}/{evt.maxTokens.toFixed(0)}
               </td>
-              <td className="py-1.5 px-3 text-right font-mono text-slate-500">
+              <td className="py-1.5 px-3 text-right font-mono tabular-nums text-zinc-600">
                 {evt.latencyMs.toFixed(2)}ms
               </td>
             </tr>
