@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewMiddleware returns a Chi-compatible rate-limiting middleware.
+// NewMiddleware returns a Chi-compatible rate-limiting middleware for token bucket.
 // After each decision it publishes an Event to Redis Pub/Sub so all backend
 // instances can broadcast it to their connected WebSocket clients.
 func NewMiddleware(l *Limiter, rdb *redis.Client) func(http.Handler) http.Handler {
@@ -69,6 +69,53 @@ func NewMiddleware(l *Limiter, rdb *redis.Client) func(http.Handler) http.Handle
 				_ = json.NewEncoder(w).Encode(map[string]interface{}{
 					"error":      "Too Many Requests",
 					"retryAfter": retryAfter,
+				})
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// NewSlidingWindowMiddleware returns a Chi-compatible rate-limiting middleware for sliding window.
+func NewSlidingWindowMiddleware(l *SlidingWindowLimiter, rdb *redis.Client) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			clientId := r.Header.Get("X-Client-ID")
+			if clientId == "" {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_ = json.NewEncoder(w).Encode(map[string]string{
+					"error": "X-Client-ID header is required",
+				})
+				return
+			}
+
+			start := time.Now()
+			res, err := l.Check(r.Context(), clientId)
+			_ = time.Since(start) // latency calculated but not used in sliding window for now
+
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusInternalServerError)
+				_ = json.NewEncoder(w).Encode(map[string]string{
+					"error": "Rate limit check failed",
+				})
+				return
+			}
+
+			w.Header().Set("X-RateLimit-Limit", strconv.Itoa(res.MaxRequests))
+			w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(res.Remaining))
+			w.Header().Set("X-RateLimit-Window", strconv.Itoa(res.WindowSec))
+
+			if !res.Allowed {
+				w.Header().Set("Retry-After", strconv.Itoa(res.WindowSec))
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusTooManyRequests)
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{
+					"error":      "Too Many Requests",
+					"retryAfter": res.WindowSec,
 				})
 				return
 			}
