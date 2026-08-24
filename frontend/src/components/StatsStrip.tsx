@@ -12,10 +12,10 @@ interface StatsStripProps {
 }
 
 const connectionColors: Record<ConnectionStatus, string> = {
-  connected: '#34d399',
-  connecting: '#fbbf24',
-  disconnected: '#71717a',
-  error: '#f87171',
+  connected: '#059669',
+  connecting: '#d97706',
+  disconnected: '#a1a1aa',
+  error: '#dc2626',
 };
 
 const connectionLabels: Record<ConnectionStatus, string> = {
@@ -32,14 +32,14 @@ interface StatCardProps {
   color?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, sub, color = '#fafafa' }) => (
+const StatCard: React.FC<StatCardProps> = ({ label, value, sub, color = '#18181b' }) => (
   <div
     className="card card-hover flex flex-col justify-center gap-0.5 px-5 py-3"
     style={{ minWidth: 130 }}
   >
-    <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">{label}</div>
+    <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">{label}</div>
     <div className="text-2xl font-semibold tabular-nums tracking-tight" style={{ color }}>{value}</div>
-    {sub && <div className="text-[11px] text-zinc-600">{sub}</div>}
+    {sub && <div className="text-[11px] text-zinc-400">{sub}</div>}
   </div>
 );
 
@@ -61,7 +61,8 @@ export const StatsStrip: React.FC<StatsStripProps> = ({ stats, events, status })
     })).reverse();
   }, [events]);
 
-  const rejColor = stats.rejectionPct > 50 ? '#f87171' : stats.rejectionPct > 20 ? '#fbbf24' : '#34d399';
+  const rejColor =
+    stats.rejectionPct > 50 ? '#dc2626' : stats.rejectionPct > 20 ? '#d97706' : '#059669';
 
   return (
     <div className="flex items-stretch gap-3 w-full flex-wrap">
@@ -69,7 +70,7 @@ export const StatsStrip: React.FC<StatsStripProps> = ({ stats, events, status })
         className="card card-hover flex flex-col justify-center items-start gap-1 px-5 py-3"
         style={{ minWidth: 110 }}
       >
-        <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">WebSocket</div>
+        <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">WebSocket</div>
         <div className="flex items-center gap-2">
           <span
             className={`w-1.5 h-1.5 rounded-full ${status === 'connected' ? 'animate-pulse-dot' : ''}`}
@@ -96,40 +97,41 @@ export const StatsStrip: React.FC<StatsStripProps> = ({ stats, events, status })
         label="Last Latency"
         value={`${stats.lastLatencyMs.toFixed(2)}ms`}
         sub="Redis round-trip"
-        color="#38bdf8"
+        color="#2563eb"
       />
 
       <div
         className="card flex-1 flex flex-col justify-center gap-1 px-4 py-3"
         style={{ minWidth: 200 }}
       >
-        <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">Throughput · 10s</div>
+        <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">Throughput · 10s</div>
         <ResponsiveContainer width="100%" height={44}>
           <AreaChart data={sparkData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorAllowed" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#34d399" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
+                <stop offset="0%" stopColor="#059669" stopOpacity={0.18} />
+                <stop offset="100%" stopColor="#059669" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorRejected" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f87171" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#f87171" stopOpacity={0} />
+                <stop offset="0%" stopColor="#dc2626" stopOpacity={0.18} />
+                <stop offset="100%" stopColor="#dc2626" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis dataKey="t" hide />
             <YAxis hide />
             <Tooltip
               contentStyle={{
-                background: '#18181b',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#ffffff',
+                border: '1px solid rgba(24,24,27,0.1)',
                 borderRadius: 8,
                 fontSize: 11,
+                boxShadow: '0 4px 16px rgba(16,24,40,0.08)',
               }}
-              itemStyle={{ color: '#e4e4e7' }}
-              cursor={{ stroke: 'rgba(255,255,255,0.15)' }}
+              itemStyle={{ color: '#3f3f46' }}
+              cursor={{ stroke: 'rgba(24,24,27,0.15)' }}
             />
-            <Area type="monotone" dataKey="allowed" stroke="#34d399" strokeWidth={1.5} fill="url(#colorAllowed)" name="Allowed" />
-            <Area type="monotone" dataKey="rejected" stroke="#f87171" strokeWidth={1.5} fill="url(#colorRejected)" name="Rejected" />
+            <Area type="monotone" dataKey="allowed" stroke="#059669" strokeWidth={1.5} fill="url(#colorAllowed)" name="Allowed" />
+            <Area type="monotone" dataKey="rejected" stroke="#dc2626" strokeWidth={1.5} fill="url(#colorRejected)" name="Rejected" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

@@ -71,11 +71,11 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
     <div className="flex flex-col gap-3 w-full">
       <div
         className="rounded-xl p-3.5 flex flex-col gap-2.5"
-        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-[0.14em]">Burst</span>
-          <span className="text-xs font-mono tabular-nums text-zinc-300">×{burstSize}</span>
+          <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-[0.14em]">Burst</span>
+          <span className="text-xs font-mono tabular-nums text-zinc-600">×{burstSize}</span>
         </div>
         <input
           type="range"
@@ -92,8 +92,8 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
           disabled={burstLoading}
           className="w-full py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98]"
           style={{
-            background: burstLoading ? '#3f3f46' : '#fafafa',
-            color: burstLoading ? '#a1a1aa' : '#18181b',
+            background: burstLoading ? '#e4e4e7' : '#18181b',
+            color: burstLoading ? '#a1a1aa' : '#ffffff',
             cursor: burstLoading ? 'not-allowed' : 'pointer',
           }}
         >
@@ -109,15 +109,15 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
 
       <div
         className="rounded-xl p-3.5 flex flex-col gap-2.5"
-        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-[0.14em]">Sustained</span>
-          <span className="text-xs font-mono tabular-nums text-zinc-300">{sustainRate} req/s · {sustainDuration}s</span>
+          <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-[0.14em]">Sustained</span>
+          <span className="text-xs font-mono tabular-nums text-zinc-600">{sustainRate} req/s · {sustainDuration}s</span>
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <div className="text-[10px] text-zinc-600 mb-1.5">Rate</div>
+            <div className="text-[10px] text-zinc-400 mb-1.5">Rate</div>
             <input
               type="range" min={1} max={10} value={sustainRate}
               onChange={(e) => setSustainRate(Number(e.target.value))}
@@ -126,7 +126,7 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
             />
           </div>
           <div className="flex-1">
-            <div className="text-[10px] text-zinc-600 mb-1.5">Duration</div>
+            <div className="text-[10px] text-zinc-400 mb-1.5">Duration</div>
             <input
               type="range" min={2} max={30} value={sustainDuration}
               onChange={(e) => setSustainDuration(Number(e.target.value))}
@@ -140,9 +140,9 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
           onClick={handleSustained}
           className="w-full py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98]"
           style={{
-            background: sustainLoading ? `${accent}22` : 'transparent',
-            color: accent,
-            border: `1px solid ${accent}55`,
+            background: sustainLoading ? `${accent}14` : '#ffffff',
+            color: sustainLoading ? accent : '#18181b',
+            border: sustainLoading ? `1px solid ${accent}55` : '1px solid rgba(24,24,27,0.15)',
             cursor: 'pointer',
           }}
         >
@@ -154,11 +154,15 @@ export const TrafficControls: React.FC<TrafficControlsProps> = ({ clientId, acce
         <div
           key={`${lastResult.allowed}-${lastResult.rejected}`}
           className="rounded-lg px-3 py-2 flex gap-3 items-center animate-slide-in-row text-xs font-mono tabular-nums"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{
+            background: '#ffffff',
+            border: '1px solid var(--color-border)',
+            boxShadow: '0 1px 2px rgba(16,24,40,0.04)',
+          }}
         >
-          <span style={{ color: '#34d399' }}>✓ {lastResult.allowed}</span>
-          <span className="text-zinc-700">|</span>
-          <span style={{ color: '#f87171' }}>✗ {lastResult.rejected}</span>
+          <span style={{ color: '#059669' }}>✓ {lastResult.allowed}</span>
+          <span className="text-zinc-300">|</span>
+          <span style={{ color: '#dc2626' }}>✗ {lastResult.rejected}</span>
         </div>
       )}
     </div>

@@ -7,9 +7,9 @@ interface TokenGaugeProps {
 }
 
 function getStatus(pct: number): { color: string; label: string } {
-  if (pct > 0.5) return { color: '#34d399', label: 'Healthy' };
-  if (pct > 0.2) return { color: '#fbbf24', label: 'Low' };
-  return { color: '#f87171', label: pct > 0 ? 'Critical' : 'Exhausted' };
+  if (pct > 0.5) return { color: '#059669', label: 'Healthy' };
+  if (pct > 0.2) return { color: '#d97706', label: 'Low' };
+  return { color: '#dc2626', label: pct > 0 ? 'Critical' : 'Exhausted' };
 }
 
 export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
@@ -18,7 +18,7 @@ export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
 
   return (
     <div className="flex flex-col items-center gap-3 w-full" style={{ width: 84 }}>
-      <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+      <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">
         Tokens
       </div>
 
@@ -26,8 +26,8 @@ export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
         <div
           className="absolute inset-0 overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(24,24,27,0.04)',
+            border: '1px solid rgba(24,24,27,0.08)',
             borderRadius: 14,
           }}
         >
@@ -52,7 +52,7 @@ export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
               left: 8,
               right: 8,
               height: 1,
-              background: 'rgba(255,255,255,0.08)',
+              background: 'rgba(24,24,27,0.08)',
             }}
           />
         ))}
@@ -66,15 +66,15 @@ export const TokenGauge: React.FC<TokenGaugeProps> = ({ current, max }) => {
         >
           {current.toFixed(1)}
         </span>
-        <span className="text-[11px] text-zinc-600">/ {max.toFixed(0)} tokens</span>
+        <span className="text-[11px] text-zinc-400">/ {max.toFixed(0)} tokens</span>
       </div>
 
       <div
         className="text-[10px] font-medium px-2 py-0.5 rounded-full uppercase tracking-[0.12em]"
         style={{
-          background: `${color}14`,
+          background: `${color}10`,
           color,
-          border: `1px solid ${color}2e`,
+          border: `1px solid ${color}30`,
           transition: 'background 0.4s ease, color 0.4s ease',
         }}
       >

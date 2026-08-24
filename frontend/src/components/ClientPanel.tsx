@@ -10,9 +10,9 @@ interface ClientPanelProps {
 }
 
 const PANEL_ACCENTS: Record<ClientId, string> = {
-  'client-a': '#38bdf8',
-  'client-b': '#34d399',
-  'client-c': '#fbbf24',
+  'client-a': '#2563eb',
+  'client-b': '#059669',
+  'client-c': '#d97706',
 };
 
 export const ClientPanel: React.FC<ClientPanelProps> = ({ clientId, events }) => {
@@ -41,21 +41,21 @@ export const ClientPanel: React.FC<ClientPanelProps> = ({ clientId, events }) =>
             className="w-2 h-2 rounded-full animate-pulse-dot"
             style={{ background: accent }}
           />
-          <h2 className="text-base font-medium tracking-tight text-zinc-100">
+          <h2 className="text-base font-medium tracking-tight text-zinc-900">
             {CLIENT_LABELS[clientId]}
           </h2>
-          <code className="text-[11px] text-zinc-600 font-mono">{clientId}</code>
+          <code className="text-[11px] text-zinc-400 font-mono">{clientId}</code>
         </div>
         <div className="flex gap-1.5 text-xs font-mono tabular-nums">
           <span
             className="px-2 py-0.5 rounded-full font-medium transition-transform duration-200"
-            style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.18)' }}
+            style={{ background: 'rgba(5,150,105,0.08)', color: '#047857', border: '1px solid rgba(5,150,105,0.18)' }}
           >
             ✓ {allowedCount}
           </span>
           <span
             className="px-2 py-0.5 rounded-full font-medium"
-            style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.18)' }}
+            style={{ background: 'rgba(220,38,38,0.06)', color: '#b91c1c', border: '1px solid rgba(220,38,38,0.18)' }}
           >
             ✗ {rejectedCount}
           </span>
@@ -73,14 +73,14 @@ export const ClientPanel: React.FC<ClientPanelProps> = ({ clientId, events }) =>
 
       {recent.length > 0 && (
         <div>
-          <div className="text-[10px] text-zinc-600 mb-1.5 uppercase tracking-[0.14em] font-medium">Recent Activity</div>
+          <div className="text-[10px] text-zinc-400 mb-1.5 uppercase tracking-[0.14em] font-medium">Recent Activity</div>
           <div className="flex gap-0.5 h-1.5">
             {recent.slice(0, 20).reverse().map((e, i) => (
               <div
                 key={i}
                 className="flex-1 rounded-full animate-pop-in"
                 style={{
-                  background: e.allowed ? '#34d399' : '#f87171',
+                  background: e.allowed ? '#059669' : '#dc2626',
                   opacity: 0.35 + (i / 20) * 0.65,
                   animationDelay: `${i * 12}ms`,
                 }}
