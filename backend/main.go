@@ -77,12 +77,25 @@ func main() {
 		// Single Redis node (default for dev)
 		redisAddr := os.Getenv("REDIS_ADDR")
 		if redisAddr == "" {
+			redisAddr = os.Getenv("REDIS_URL")
+		}
+		if redisAddr == "" {
 			redisAddr = "localhost:6379"
 		}
-		rdb = redis.NewClient(&redis.Options{
-			Addr: redisAddr,
-		})
-		log.Printf("Connecting to single Redis at %s", redisAddr)
+
+		if strings.HasPrefix(redisAddr, "redis://") || strings.HasPrefix(redisAddr, "rediss://") {
+			opt, err := redis.ParseURL(redisAddr)
+			if err != nil {
+				log.Fatalf("Failed to parse Redis URL: %v", err)
+			}
+			rdb = redis.NewClient(opt)
+			log.Printf("Connecting to Redis via URL")
+		} else {
+			rdb = redis.NewClient(&redis.Options{
+				Addr: redisAddr,
+			})
+			log.Printf("Connecting to single Redis at %s", redisAddr)
+		}
 	}
 
 	// Check Redis connectivity with a timeout
